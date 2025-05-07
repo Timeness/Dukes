@@ -1,3 +1,3 @@
-##pip install -r requirements.txt
+## pip install -r requirements.txt
 -
-#python train.py && python app.py
+# python train.py && python app.py
