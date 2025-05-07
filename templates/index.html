@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dukis LLM</title>
+  <style>
+    body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
+    input, button { padding: 10px; background: #222; color: #0f0; border: none; }
+    #chatBox { height: 300px; overflow-y: scroll; border: 1px solid #0f0; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Dukis LLM</h1>
+  <div id="chatBox"></div>
+  <input id="userInput" placeholder="Talk to Dukis...">
+  <button onclick="send()">Send</button>
+
+  <script>
+    function send() {
+      const input = document.getElementById("userInput").value;
+      document.getElementById("chatBox").innerHTML += `<p><strong>You:</strong> ${input}</p>`;
+      fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: input })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("chatBox").innerHTML += `<p><strong>Dukis:</strong> ${data.response}</p>`;
+        document.getElementById("chatBox").scrollTop = 9999;
+      });
+    }
+  </script>
+</body>
+</html>
