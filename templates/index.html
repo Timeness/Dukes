@@ -3,31 +3,51 @@
 <head>
   <title>Dukis LLM</title>
   <style>
-    body { font-family: monospace; background: #111; color: #0f0; padding: 20px; }
-    input, button { padding: 10px; background: #222; color: #0f0; border: none; }
-    #chatBox { height: 300px; overflow-y: scroll; border: 1px solid #0f0; padding: 10px; }
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    input, button { padding: 8px; margin: 5px; }
+    #chatBox { border: 1px solid #444; padding: 10px; height: 300px; overflow-y: scroll; }
   </style>
 </head>
 <body>
-  <h1>Dukis LLM</h1>
+  <h1>Dukis LLM Chatbot</h1>
   <div id="chatBox"></div>
-  <input id="userInput" placeholder="Talk to Dukis...">
-  <button onclick="send()">Send</button>
+  <input type="text" id="userInput" placeholder="Ask Dukis...">
+  <button onclick="sendMsg()">Send</button>
+
+  <hr>
+  <h2>Train Dukis</h2>
+  <input type="text" id="trainText" placeholder="Phrase (e.g. hi)">
+  <input type="text" id="trainIntent" placeholder="Intent (e.g. greeting)">
+  <button onclick="trainDukis()">Add & Train</button>
 
   <script>
-    function send() {
+    function appendMsg(role, msg) {
+      const box = document.getElementById("chatBox");
+      box.innerHTML += `<p><strong>${role}:</strong> ${msg}</p>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendMsg() {
       const input = document.getElementById("userInput").value;
-      document.getElementById("chatBox").innerHTML += `<p><strong>You:</strong> ${input}</p>`;
-      fetch("/ask", {
+      appendMsg("You", input);
+      fetch("/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: input })
       })
       .then(res => res.json())
-      .then(data => {
-        document.getElementById("chatBox").innerHTML += `<p><strong>Dukis:</strong> ${data.response}</p>`;
-        document.getElementById("chatBox").scrollTop = 9999;
-      });
+      .then(data => appendMsg("Dukis", data.response));
+    }
+
+    function trainDukis() {
+      const text = document.getElementById("trainText").value;
+      const intent = document.getElementById("trainIntent").value;
+      fetch("/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, intent })
+      }).then(() => fetch("/train_model"));
+      alert("Added & retrained Dukis!");
     }
   </script>
 </body>
